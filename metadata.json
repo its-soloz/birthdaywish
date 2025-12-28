@@ -1,0 +1,7 @@
+{
+  "name": "Copy of Birthday Magic Celebration",
+  "description": "A charming, multi-step interactive birthday celebration app featuring love letters, cake cutting, wishes, and a custom soundtrack.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
