@@ -9,10 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react-dom": "^19.2.3",
-    "framer-motion": "^12.23.26",
     "react": "^19.2.3",
-    "canvas-confetti": "^1.9.4"
+    "react-dom": "^19.2.3",
+    "framer-motion": "10.16.4",
+    "canvas-confetti": "1.6.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

@@ -16,24 +16,29 @@ import SealedStep from './components/SealedStep';
 const App: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<AppStep>(AppStep.INTRO);
 
-  const triggerConfetti = useCallback(() => {
-    const duration = 3 * 1000;
-    const animationEnd = Date.now() + duration;
-    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+  const triggerConfetti = useCallback((style: 'default' | 'burst' = 'default') => {
+    if (style === 'burst') {
+      const duration = 5 * 1000;
+      const animationEnd = Date.now() + duration;
+      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
 
-    const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
+      const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
 
-    const interval: any = setInterval(function() {
-      const timeLeft = animationEnd - Date.now();
-
-      if (timeLeft <= 0) {
-        return clearInterval(interval);
-      }
-
-      const particleCount = 50 * (timeLeft / duration);
-      confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
-      confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
-    }, 250);
+      const interval: any = setInterval(function() {
+        const timeLeft = animationEnd - Date.now();
+        if (timeLeft <= 0) return clearInterval(interval);
+        const particleCount = 50 * (timeLeft / duration);
+        confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+        confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+      }, 250);
+    } else {
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#f472b6', '#ec4899', '#ffffff']
+      });
+    }
   }, []);
 
   const nextStep = () => {
@@ -49,45 +54,80 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
-    if (currentStep === AppStep.CAKE_TIME || currentStep === AppStep.SEALED) {
-      triggerConfetti();
+    if (currentStep === AppStep.SEALED) {
+      triggerConfetti('burst');
     }
   }, [currentStep, triggerConfetti]);
 
   return (
-    <div className="relative min-h-screen w-full flex flex-col items-center justify-center p-4 overflow-hidden bg-[#fff5f7]">
-      {/* Background Elements */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-10 left-10 w-24 h-24 bg-blue-100 rounded-full blur-2xl opacity-50 floating"></div>
-        <div className="absolute top-40 right-20 w-32 h-32 bg-pink-100 rounded-full blur-2xl opacity-60 floating" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute bottom-20 left-1/4 w-40 h-40 bg-purple-100 rounded-full blur-3xl opacity-40 floating" style={{ animationDelay: '2s' }}></div>
+    <div className="relative min-h-screen w-full flex flex-col items-center justify-center p-4 overflow-hidden bg-[#fff5f7] selection:bg-pink-200">
+      {/* Dynamic Background */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
+        <motion.div 
+          animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }}
+          transition={{ duration: 10, repeat: Infinity }}
+          className="absolute -top-20 -left-20 w-[500px] h-[500px] bg-pink-100 rounded-full blur-[100px]"
+        />
+        <motion.div 
+          animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.4, 0.2] }}
+          transition={{ duration: 12, repeat: Infinity, delay: 2 }}
+          className="absolute -bottom-20 -right-20 w-[600px] h-[600px] bg-purple-100 rounded-full blur-[120px]"
+        />
         
-        {/* Clouds & Hearts Simulation */}
-        <div className="absolute top-[10%] left-[5%] text-4xl opacity-40 floating">☁️</div>
-        <div className="absolute top-[15%] right-[10%] text-4xl opacity-40 floating" style={{ animationDelay: '1.5s' }}>☁️</div>
-        <div className="absolute bottom-[20%] right-[5%] text-2xl opacity-30 floating">💖</div>
-        <div className="absolute top-[40%] left-[8%] text-2xl opacity-30 floating" style={{ animationDelay: '0.8s' }}>✨</div>
-        <div className="absolute top-[10%] left-[20%] text-sm text-pink-300">🌸</div>
-        <div className="absolute top-[8%] right-[25%] text-sm text-pink-300">🎀</div>
+        {/* Floating elements */}
+        {[...Array(12)].map((_, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: Math.random() * 1000 }}
+            animate={{ 
+              opacity: [0.1, 0.3, 0.1], 
+              y: [-100, 1100],
+              x: Math.random() * 50 - 25
+            }}
+            transition={{ 
+              duration: 15 + Math.random() * 10, 
+              repeat: Infinity, 
+              ease: "linear",
+              delay: i * 1.5
+            }}
+            className="absolute text-2xl"
+            style={{ left: `${Math.random() * 100}%` }}
+          >
+            {['✨', '🌸', '💖', '☁️', '🎈', '🎁'][Math.floor(Math.random() * 6)]}
+          </motion.div>
+        ))}
       </div>
 
-      <main className="relative z-10 w-full max-w-4xl flex items-center justify-center">
+      <main className="relative z-10 w-full flex items-center justify-center">
         <AnimatePresence mode="wait">
-          {currentStep === AppStep.INTRO && <IntroStep key="intro" onNext={nextStep} />}
-          {currentStep === AppStep.ENVELOPE && <EnvelopeStep key="envelope" onNext={nextStep} />}
-          {currentStep === AppStep.READ_LETTER && <ReadLetterStep key="read-letter" onNext={nextStep} />}
-          {currentStep === AppStep.CAKE_TIME && <CakeStep key="cake" onNext={nextStep} />}
-          {currentStep === AppStep.WISH_TIME && <WishStep key="wish" onNext={nextStep} />}
-          {currentStep === AppStep.SOUNDTRACK && <SoundtrackStep key="soundtrack" onNext={nextStep} />}
-          {currentStep === AppStep.WISH_CARDS && <WishCardsStep key="wish-cards" onNext={nextStep} />}
-          {currentStep === AppStep.FINAL_LETTER && <FinalLetterStep key="final-letter" onNext={nextStep} />}
-          {currentStep === AppStep.SEALED && <SealedStep key="sealed" onReset={reset} />}
+          <motion.div
+            key={currentStep}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full flex justify-center"
+          >
+            {currentStep === AppStep.INTRO && <IntroStep onNext={nextStep} />}
+            {currentStep === AppStep.ENVELOPE && <EnvelopeStep onNext={nextStep} />}
+            {currentStep === AppStep.READ_LETTER && <ReadLetterStep onNext={nextStep} />}
+            {currentStep === AppStep.CAKE_TIME && <CakeStep onNext={nextStep} />}
+            {currentStep === AppStep.WISH_TIME && <WishStep onNext={nextStep} />}
+            {currentStep === AppStep.SOUNDTRACK && <SoundtrackStep onNext={nextStep} />}
+            {currentStep === AppStep.WISH_CARDS && <WishCardsStep onNext={nextStep} />}
+            {currentStep === AppStep.FINAL_LETTER && <FinalLetterStep onNext={nextStep} />}
+            {currentStep === AppStep.SEALED && <SealedStep onReset={reset} />}
+          </motion.div>
         </AnimatePresence>
       </main>
 
-      <footer className="mt-8 text-pink-400 text-sm opacity-70 relative z-10">
-        Made with endless love for your special day ✔️
-      </footer>
+      <motion.footer 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.6 }}
+        className="fixed bottom-6 text-pink-400 text-xs font-semibold tracking-widest uppercase z-10"
+      >
+        Created for a special soul • 2024
+      </motion.footer>
     </div>
   );
 };
