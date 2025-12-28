@@ -59,6 +59,21 @@ const App: React.FC = () => {
     }
   }, [currentStep, triggerConfetti]);
 
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case AppStep.INTRO: return <IntroStep key="intro" onNext={nextStep} />;
+      case AppStep.ENVELOPE: return <EnvelopeStep key="envelope" onNext={nextStep} />;
+      case AppStep.READ_LETTER: return <ReadLetterStep key="read-letter" onNext={nextStep} />;
+      case AppStep.CAKE_TIME: return <CakeStep key="cake" onNext={nextStep} />;
+      case AppStep.WISH_TIME: return <WishStep key="wish" onNext={nextStep} />;
+      case AppStep.SOUNDTRACK: return <SoundtrackStep key="soundtrack" onNext={nextStep} />;
+      case AppStep.WISH_CARDS: return <WishCardsStep key="wish-cards" onNext={nextStep} />;
+      case AppStep.FINAL_LETTER: return <FinalLetterStep key="final-letter" onNext={nextStep} />;
+      case AppStep.SEALED: return <SealedStep key="sealed" onReset={reset} />;
+      default: return null;
+    }
+  };
+
   return (
     <div className="relative min-h-screen w-full flex flex-col items-center justify-center p-4 overflow-hidden bg-[#fff5f7] selection:bg-pink-200">
       {/* Dynamic Background */}
@@ -108,15 +123,7 @@ const App: React.FC = () => {
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="w-full flex justify-center"
           >
-            {currentStep === AppStep.INTRO && <IntroStep onNext={nextStep} />}
-            {currentStep === AppStep.ENVELOPE && <EnvelopeStep onNext={nextStep} />}
-            {currentStep === AppStep.READ_LETTER && <ReadLetterStep onNext={nextStep} />}
-            {currentStep === AppStep.CAKE_TIME && <CakeStep onNext={nextStep} />}
-            {currentStep === AppStep.WISH_TIME && <WishStep onNext={nextStep} />}
-            {currentStep === AppStep.SOUNDTRACK && <SoundtrackStep onNext={nextStep} />}
-            {currentStep === AppStep.WISH_CARDS && <WishCardsStep onNext={nextStep} />}
-            {currentStep === AppStep.FINAL_LETTER && <FinalLetterStep onNext={nextStep} />}
-            {currentStep === AppStep.SEALED && <SealedStep onReset={reset} />}
+            {renderStepContent()}
           </motion.div>
         </AnimatePresence>
       </main>
